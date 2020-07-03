@@ -4,8 +4,9 @@
   "description": "",
   "main": "gulpfile.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "gulp default"
+    "test": "jasmine",
+    "build": "gulp build",
+    "start": "gulp start"
   },
   "repository": {
     "type": "git",
@@ -37,6 +38,7 @@
     "gulp-sass": "^4.1.0",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-uglify": "^3.0.2",
+    "jasmine": "^3.5.0",
     "js-yaml": "^3.13.1"
   },
   "dependencies": {
