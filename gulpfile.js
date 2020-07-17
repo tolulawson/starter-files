@@ -8,11 +8,21 @@ const image = require('gulp-image');
 const browsersync = require('browser-sync').create();
 const cleancss = require('gulp-clean-css');
 const jasmineBrowser = require('gulp-jasmine-browser');
-const sourcemaps = require('gulp-sourcemaps');
+const browserify = require('browserify');
+const source = require('vinyl-source-stream');
 
 function promisifyStream(stream) {
   return new Promise((resolve) => stream.on('end', resolve));
 }
+
+gulp.task('browserify', function() {
+  return browserify('src/js/app.js')
+    .bundle()
+    //Pass desired output filename to vinyl-source-stream
+    .pipe(source('bundle.js'))
+    // Start piping stream to tasks!
+    .pipe(gulp.dest('src/js/'));
+})
 
 gulp.task('sass', async function() {
   await promisifyStream(
@@ -43,11 +53,11 @@ gulp.task('autoprefixer', async function() {
         .pipe(autoprefixer('last 2 versions'))
         .pipe(gulp.dest('./'))
   )
-})
+});
 
 gulp.task('babel', async function() {
   await promisifyStream(
-    gulp.src('src/js/*.js')
+    gulp.src('src/js/bundle.js')
       .pipe(babel({
           presets: [
           ['@babel/env', {
@@ -99,10 +109,10 @@ gulp.task('start', async function() {
         baseDir : "src"
       }
   });
-  gulp.watch('src/scss/*.scss', {ignoreInitial: false}, gulp.series('start-sass')).on('change', browsersync.reload);
+  gulp.watch('src/scss/*.scss', {ignoreInitial: false}, gulp.series('start-sass', 'browserify')).on('change', browsersync.reload);
   gulp.watch(['src/*.html', 'src/js/*.js']).on('change', browsersync.reload);
 })
 
 gulp.task('build', async function() {
-  (gulp.series('sass', 'autoprefixer', 'cleancss', 'babel', 'uglify', 'htmlmin', 'image'))();
+  (gulp.series('sass', 'autoprefixer', 'cleancss', 'browserify', 'babel', 'uglify', 'htmlmin', 'image'))();
 });
